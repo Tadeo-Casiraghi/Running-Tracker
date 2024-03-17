@@ -57,6 +57,8 @@ class Extractor():
             print('The available data is:')
             for saved, value in self.data['VO2'].itemize():
                 print(f'\t{saved}: {value}')
+        else:
+            self.data['VO2'] = {}
         
         again = True
         while again:
@@ -65,15 +67,22 @@ class Extractor():
             self.data['VO2'][date] = vo2
             again = True if 'y' == input('again [y/n]?') else False
         
-    def define_tracking(self,):
-        print('Please input what tracking categories you would prefer (separated by spaces):')
-        print('For example: "Distance in Meters", "Heart Rate", "Speed (mps)" or default for those three')
-        user = input()
-        if user == 'default':
+        self.save_data()
+        
+    def define_tracking(self, default = False):
+        if default:
+            print('Default values will be used ("Distance in Meters", "Heart Rate", "Speed (mps)")')
             self.track = ["Distance in Meters", "Heart Rate", "Speed (mps)"]
+            self.data['tracking'] = self.track
         else:
-            self.track = user.strip().split()
-        self.data['tracking'] = self.track
+            print('Please input what tracking categories you would prefer (separated by spaces):')
+            print('For example: "Distance in Meters", "Heart Rate", "Speed (mps)" or default for those three')
+            user = input()
+            if user == 'default':
+                self.track = ["Distance in Meters", "Heart Rate", "Speed (mps)"]
+            else:
+                self.track = user.strip().split()
+            self.data['tracking'] = self.track
 
     def add_tracking(self,):
         print('Please input what tracking categories you would like to add (separated by spaces):')
@@ -116,7 +125,7 @@ class Extractor():
                 
                 
                 for slice in self.speed_limits:
-                    values[slice[-1]] = {'time':[], 'speed':[], 'periods':[], 'distance':[]}
+                    values[str(slice[-1])] = {'time':[], 'speed':[], 'periods':[], 'distance':[]}
 
                 prev_distance = 0
                 last_limi = 0
@@ -125,18 +134,18 @@ class Extractor():
                     limi = self.find_limits(self.speed_limits, s)
                     limi = limi[-1]
                     if last_limi != limi:
-                        values[limi]['periods'].append([t])
+                        values[str(limi)]['periods'].append([t])
                         if last_limi != 0:
-                            values[last_limi]['periods'][-1].append(t)
-                            values[last_limi]['distance'].append([prev_distance, d])
+                            values[str(last_limi)]['periods'][-1].append(t)
+                            values[str(last_limi)]['distance'].append([prev_distance, d])
                         last_limi = limi
                         prev_distance = d
 
-                    values[limi]['time'].append(t)
-                    values[limi]['speed'].append(s)
+                    values[str(limi)]['time'].append(t)
+                    values[str(limi)]['speed'].append(s)
 
-                values[limi]['periods'][-1].append(t)
-                values[limi]['distance'].append([prev_distance, d])
+                values[str(limi)]['periods'][-1].append(t)
+                values[str(limi)]['distance'].append([prev_distance, d])
                 prev_distance = d
 
                 heartrate_values = {}
@@ -158,6 +167,7 @@ class Extractor():
 
                 with open(self.processed_path, 'a') as file:
                     file.write(name + '\n')
+        self.save_data()
                 
     def save_data(self,):
         with open(self.data_path, 'w') as file:

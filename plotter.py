@@ -195,14 +195,18 @@ def showall(datum, path, saving = True):
     dates = []
     vo2 = []
     if 'VO2' in datum:
-        vo2 = (datum['VO2'])
+        vo2 = [[datetime.strptime(date, '%m/%d/%Y') for date in datum['VO2'].keys()],
+               [value for value in datum['VO2'].values()]]
+        vo2 = [sorted(vo2[0]),
+               [x for _, x in sorted(zip(vo2[0], vo2[1]))]]
+        
 
     for date, data in all_data.items():
         
 
         total_time = 0
 
-        intervals = [value for value in data.keys() if type(value) == int]
+        intervals = [value for value in data.keys() if value.isnumeric()]
         total_distance = {inter:0 for inter in intervals}
         total_times = {inter:0 for inter in intervals}
 
@@ -275,7 +279,7 @@ def showall(datum, path, saving = True):
     if len(vo2) != 0:
         plt.figure()
         plt.title('VO2Max')
-        plt.plot(dates, vo2, linestyle='-', marker='o', color = 'seagreen')
+        plt.plot(vo2[0], vo2[1], linestyle='-', marker='o', color = 'seagreen')
         ax = plt.gca()
         plt.xticks(dates, rotation = 90)
         plt.tight_layout()
