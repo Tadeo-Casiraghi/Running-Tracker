@@ -3,7 +3,7 @@ from extractor import Extractor
 
 # Path to directory.
 # The directory should have a folder with all the csv files named "datasets" 
-PATH_TO_DATA = r"G:\My Drive\Road to 10K"
+PATH_TO_DATA = r""
 
 extract = Extractor(PATH_TO_DATA)
 
